@@ -10,11 +10,17 @@ import {
   Button,
   Select,
   MenuItem,
-  Link, // Импортируем Link из MUI
+  Link,
+  Drawer, // Импортируем Drawer
+  List, // Импортируем List
+  ListItemButton, // Импортируем ListItemButton
+  ListItemText, // Импортируем ListItemText
+  useMediaQuery, // Импортируем useMediaQuery
 } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { Routes, Route, Link as RouterLink, useLocation } from 'react-router-dom'; // RouterLink для навигации
+import MenuIcon from '@mui/icons-material/Menu'; // Импортируем иконку меню
+import { Routes, Route, Link as RouterLink, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
 import { getTheme } from './theme';
@@ -26,12 +32,26 @@ function App() {
   const [mode, setMode] = useState('light');
   const location = useLocation();
   const [indicatorColor, setIndicatorColor] = useState('#ffffffff');
-  const [language, setLanguage] = useState('en'); // По умолчанию английский
+  const [language, setLanguage] = useState('en');
+  // Состояние для открытия/закрытия мобильного меню
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Определяем, является ли экран маленьким (меньше 'md' - 900px по умолчанию в MUI)
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'));
 
   const theme = useMemo(() => getTheme(mode), [mode]);
 
+  // Обновляем цвет индикатора при изменении темы
+  useEffect(() => {
+    setIndicatorColor(theme.palette.text.primary);
+  }, [theme]);
+
   const toggleTheme = () => {
     setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
 
   const isHomeActive = location.pathname === '/';
@@ -70,15 +90,72 @@ function App() {
 
   const tFooter = footerTranslations[language];
 
+  // Содержимое боковой панели для мобильных устройств
+  const drawer = (
+    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
+      <Typography variant="h6" sx={{ my: 2 }}>
+        {tToolbar.title}
+      </Typography>
+      <List>
+        <ListItemButton component={RouterLink} to="/" selected={isHomeActive}>
+          <ListItemText primary={tToolbar.home} />
+        </ListItemButton>
+        <ListItemButton component={RouterLink} to="/projects" selected={isProjectsActive}>
+          <ListItemText primary={tToolbar.projects} />
+        </ListItemButton>
+        {/* Добавляем выбор языка и переключатель темы в Drawer */}
+        <ListItemButton>
+          <Select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            sx={{ color: 'inherit', '& .MuiSelect-icon': { color: 'inherit' }, width: '100%' }}
+            variant="standard"
+            disableUnderline
+          >
+            <MenuItem value="en">EN</MenuItem>
+            <MenuItem value="ru">RU</MenuItem>
+            <MenuItem value="tr">TR</MenuItem>
+          </Select>
+        </ListItemButton>
+        <ListItemButton onClick={toggleTheme}>
+          <IconButton color="inherit">
+            {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
+          <ListItemText primary={mode === 'dark' ? 'Light Mode' : 'Dark Mode'} />
+        </ListItemButton>
+      </List>
+    </Box>
+  );
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="static">
-        <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Typography variant="h6" sx={{ position: 'absolute', left: 16 }}>
+        <Toolbar>
+          {/* Кнопка-гамбургер для мобильных устройств */}
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+
+          {/* Заголовок портфолио */}
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }} // Скрываем на xs, показываем на sm и выше
+          >
             {tToolbar.title}
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'center', flexGrow: 1 }}>
+
+          {/* Навигационные кнопки для больших экранов */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center', flexGrow: 1 }}>
             <Button
               color="inherit"
               component={RouterLink}
@@ -128,27 +205,74 @@ function App() {
               {tToolbar.projects}
             </Button>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', ml: -10 }}>
+
+          {/* Выбор языка и переключатель темы для больших экранов */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
             <Select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              sx={{ color: 'inherit', '& .MuiSelect-icon': { color: 'white' }, mr: 5 }}
+              sx={{ color: 'inherit', '& .MuiSelect-icon': { color: 'white' }, mr: 2 }}
               variant="standard"
             >
               <MenuItem value="en">EN</MenuItem>
               <MenuItem value="ru">RU</MenuItem>
               <MenuItem value="tr">TR</MenuItem>
             </Select>
-            <IconButton
-              onClick={toggleTheme}
-              color="inherit"
-              sx={{ position: 'absolute', right: 16 }}
-            >
+            <IconButton onClick={toggleTheme} color="inherit">
               {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
           </Box>
+
+          {/* Заголовок для мобильных устройств (когда нет кнопки-гамбургера) */}
+          {isMobile && (
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ flexGrow: 1, textAlign: 'center', display: { xs: 'block', sm: 'none' } }}
+            >
+              {tToolbar.title}
+            </Typography>
+          )}
+
+          {/* Выбор языка и переключатель темы для мобильных устройств (если не в Drawer) */}
+          {isMobile && (
+            <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+              <Select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                sx={{ color: 'inherit', '& .MuiSelect-icon': { color: 'white' }, mr: 1 }}
+                variant="standard"
+              >
+                <MenuItem value="en">EN</MenuItem>
+                <MenuItem value="ru">RU</MenuItem>
+                <MenuItem value="tr">TR</MenuItem>
+              </Select>
+              <IconButton onClick={toggleTheme} color="inherit">
+                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              </IconButton>
+            </Box>
+          )}
         </Toolbar>
       </AppBar>
+
+      {/* Drawer для мобильной навигации */}
+      <nav>
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Для лучшей производительности на мобильных
+          }}
+          sx={{
+            display: { xs: 'block', md: 'none' }, // Показываем только на маленьких экранах
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      </nav>
+
       <Box
         component="main"
         sx={{
