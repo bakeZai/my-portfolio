@@ -35,9 +35,14 @@ function MainLayout({ mode, toggleTheme, language, setLanguage, toolbarTranslati
   const theme = useTheme(); // Получаем тему из контекста Material UI
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Теперь useMediaQuery может безопасно получить доступ к theme.breakpoints,
-  // потому что useTheme() гарантирует, что тема доступна из контекста.
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  // Проверяем, что theme не null, прежде чем использовать breakpoints
+  let isMobile = false;
+  if (theme) {
+    isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  }
+
+  // Определяем indicatorColor здесь, так как он зависит от темы
+  const indicatorColor = theme ? theme.palette.text.primary : '#ffffffff'; // Устанавливаем запасной цвет, если тема еще не загружена
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -131,7 +136,7 @@ function MainLayout({ mode, toggleTheme, language, setLanguage, toolbarTranslati
                   transform: 'translateX(-50%)',
                   width: '60%',
                   height: '2px',
-                  backgroundColor: theme.palette.text.primary, // Используем theme.palette.text.primary напрямую
+                  backgroundColor: indicatorColor, // Используем indicatorColor
                   transition: 'all 0.3s ease',
                 },
               }}
@@ -155,7 +160,7 @@ function MainLayout({ mode, toggleTheme, language, setLanguage, toolbarTranslati
                   transform: 'translateX(-50%)',
                   width: '60%',
                   height: '2px',
-                  backgroundColor: theme.palette.text.primary, // Используем theme.palette.text.primary напрямую
+                  backgroundColor: indicatorColor, // Используем indicatorColor
                   transition: 'all 0.3s ease',
                 },
               }}
@@ -285,7 +290,7 @@ function MainLayout({ mode, toggleTheme, language, setLanguage, toolbarTranslati
 
 function App() {
   const [mode, setMode] = useState('light');
-  const [language, setLanguage] = useState('en'); // Определяем состояние языка здесь
+  const [language, setLanguage] = useState('en');
 
   const theme = useMemo(() => getTheme(mode), [mode]);
 
@@ -328,8 +333,8 @@ function App() {
       <MainLayout
         mode={mode}
         toggleTheme={toggleTheme}
-        language={language} // Передаем language как проп
-        setLanguage={setLanguage} // Передаем setLanguage как проп
+        language={language}
+        setLanguage={setLanguage}
         toolbarTranslations={toolbarTranslations}
         footerTranslations={footerTranslations}
       />
@@ -338,19 +343,3 @@ function App() {
 }
 
 export default App;
-```
----
-### Ключевые изменения
-
-1.  **Разделение компонентов**:
-    * Я создал новый компонент `MainLayout`, который теперь содержит всю логику, связанную с отображением тулбара, навигации, футера и маршрутов.
-    * Компонент `App` теперь в основном отвечает за инициализацию темы и управление состоянием `mode` и `language`, а затем передает их `MainLayout` через пропсы.
-
-2.  **Использование `useTheme` в `MainLayout`**:
-    * Внутри `MainLayout` я импортировал и использовал хук `useTheme()` из `@mui/material/styles`. Этот хук позволяет безопасно получить доступ к объекту темы из контекста, который предоставляется `ThemeProvider`.
-    * Теперь строка `const isMobile = useMediaQuery(theme.breakpoints.down('md'));` находится внутри `MainLayout`, где `theme` гарантированно доступен из контекста, что устраняет ошибку `Cannot read properties of null`.
-
-3.  **Передача пропсов**:
-    * Все необходимые состояния и функции (`mode`, `toggleTheme`, `language`, `setLanguage`) и объекты переводов (`toolbarTranslations`, `footerTranslations`) теперь передаются из `App` в `MainLayout` как пропсы.
-
-Эти изменения делают структуру вашего приложения более модульной и решают проблему с доступом к свойствам темы при использовании `useMediaQuery`. Теперь ваш адаптивный тулбар должен работать корректно на всех размерах экра
