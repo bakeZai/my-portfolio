@@ -11,15 +11,16 @@ import {
   Select,
   MenuItem,
   Link,
-  Drawer, // Импортируем Drawer
-  List, // Импортируем List
-  ListItemButton, // Импортируем ListItemButton
-  ListItemText, // Импортируем ListItemText
-  useMediaQuery, // Импортируем useMediaQuery
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemText,
+  useMediaQuery,
+  useTheme, // Импортируем useTheme
 } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import MenuIcon from '@mui/icons-material/Menu'; // Импортируем иконку меню
+import MenuIcon from '@mui/icons-material/Menu';
 import { Routes, Route, Link as RouterLink, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
@@ -28,27 +29,15 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import InstagramIcon from '@mui/icons-material/Instagram';
 
-function App() {
-  const [mode, setMode] = useState('light');
+// Новый компонент для обработки макета и потребления темы
+function MainLayout({ mode, toggleTheme, language, setLanguage, toolbarTranslations, footerTranslations }) {
   const location = useLocation();
-  const [indicatorColor, setIndicatorColor] = useState('#ffffffff');
-  const [language, setLanguage] = useState('en');
-  // Состояние для открытия/закрытия мобильного меню
+  const theme = useTheme(); // Получаем тему из контекста Material UI
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Определяем, является ли экран маленьким (меньше 'md' - 900px по умолчанию в MUI)
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'));
-
-  const theme = useMemo(() => getTheme(mode), [mode]);
-
-  // Обновляем цвет индикатора при изменении темы
-  useEffect(() => {
-    setIndicatorColor(theme.palette.text.primary);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
+  // Теперь useMediaQuery может безопасно получить доступ к theme.breakpoints,
+  // потому что useTheme() гарантирует, что тема доступна из контекста.
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -57,37 +46,7 @@ function App() {
   const isHomeActive = location.pathname === '/';
   const isProjectsActive = location.pathname === '/projects';
 
-  // Переводы для тулбара
-  const toolbarTranslations = {
-    en: { title: 'My Portfolio', home: 'Home', projects: 'Projects' },
-    ru: { title: 'Моё Портфолио', home: 'Главная', projects: 'Проекты' },
-    tr: { title: 'Portföyüm', home: 'Ana Sayfa', projects: 'Projeler' },
-  };
-
   const tToolbar = toolbarTranslations[language];
-
-  // Переводы для футера
-  const footerTranslations = {
-    en: {
-      name: 'Ibrahim Zanitdinov',
-      address: 'Antalya, Turkey',
-      phone: '+90 536 484 83 65',
-      email: 'bakeboy99@gmail.com',
-    },
-    ru: {
-      name: 'Ибрагим Занитдинов',
-      address: 'Анталья, Турция',
-      phone: '+90 536 484 83 65',
-      email: 'bakeboy99@gmail.com',
-    },
-    tr: {
-      name: 'İbrahim Zanitdinov',
-      address: 'Antalya, Türkiye',
-      phone: '+90 536 484 83 65',
-      email: 'bakeboy99@gmail.com',
-    },
-  };
-
   const tFooter = footerTranslations[language];
 
   // Содержимое боковой панели для мобильных устройств
@@ -128,8 +87,7 @@ function App() {
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <AppBar position="static">
         <Toolbar>
           {/* Кнопка-гамбургер для мобильных устройств */}
@@ -173,7 +131,7 @@ function App() {
                   transform: 'translateX(-50%)',
                   width: '60%',
                   height: '2px',
-                  backgroundColor: indicatorColor,
+                  backgroundColor: theme.palette.text.primary, // Используем theme.palette.text.primary напрямую
                   transition: 'all 0.3s ease',
                 },
               }}
@@ -197,7 +155,7 @@ function App() {
                   transform: 'translateX(-50%)',
                   width: '60%',
                   height: '2px',
-                  backgroundColor: indicatorColor,
+                  backgroundColor: theme.palette.text.primary, // Используем theme.palette.text.primary напрямую
                   transition: 'all 0.3s ease',
                 },
               }}
@@ -262,10 +220,10 @@ function App() {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Для лучшей производительности на мобильных
+            keepMounted: true,
           }}
           sx={{
-            display: { xs: 'block', md: 'none' }, // Показываем только на маленьких экранах
+            display: { xs: 'block', md: 'none' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
           }}
         >
@@ -321,8 +279,78 @@ function App() {
           © 2025 {tFooter.name}. All rights reserved.
         </Typography>
       </Box>
+    </>
+  );
+}
+
+function App() {
+  const [mode, setMode] = useState('light');
+  const [language, setLanguage] = useState('en'); // Определяем состояние языка здесь
+
+  const theme = useMemo(() => getTheme(mode), [mode]);
+
+  const toggleTheme = () => {
+    setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  // Переводы для тулбара
+  const toolbarTranslations = {
+    en: { title: 'My Portfolio', home: 'Home', projects: 'Projects' },
+    ru: { title: 'Моё Портфолио', home: 'Главная', projects: 'Проекты' },
+    tr: { title: 'Portföyüm', home: 'Ana Sayfa', projects: 'Projeler' },
+  };
+
+  // Переводы для футера
+  const footerTranslations = {
+    en: {
+      name: 'Ibrahim Zanitdinov',
+      address: 'Antalya, Turkey',
+      phone: '+90 536 484 83 65',
+      email: 'bakeboy99@gmail.com',
+    },
+    ru: {
+      name: 'Ибрагим Занитдинов',
+      address: 'Анталья, Турция',
+      phone: '+90 536 484 83 65',
+      email: 'bakeboy99@gmail.com',
+    },
+    tr: {
+      name: 'İbrahim Zanitdinov',
+      address: 'Antalya, Türkiye',
+      phone: '+90 536 484 83 65',
+      email: 'bakeboy99@gmail.com',
+    },
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <MainLayout
+        mode={mode}
+        toggleTheme={toggleTheme}
+        language={language} // Передаем language как проп
+        setLanguage={setLanguage} // Передаем setLanguage как проп
+        toolbarTranslations={toolbarTranslations}
+        footerTranslations={footerTranslations}
+      />
     </ThemeProvider>
   );
 }
 
 export default App;
+```
+---
+### Ключевые изменения
+
+1.  **Разделение компонентов**:
+    * Я создал новый компонент `MainLayout`, который теперь содержит всю логику, связанную с отображением тулбара, навигации, футера и маршрутов.
+    * Компонент `App` теперь в основном отвечает за инициализацию темы и управление состоянием `mode` и `language`, а затем передает их `MainLayout` через пропсы.
+
+2.  **Использование `useTheme` в `MainLayout`**:
+    * Внутри `MainLayout` я импортировал и использовал хук `useTheme()` из `@mui/material/styles`. Этот хук позволяет безопасно получить доступ к объекту темы из контекста, который предоставляется `ThemeProvider`.
+    * Теперь строка `const isMobile = useMediaQuery(theme.breakpoints.down('md'));` находится внутри `MainLayout`, где `theme` гарантированно доступен из контекста, что устраняет ошибку `Cannot read properties of null`.
+
+3.  **Передача пропсов**:
+    * Все необходимые состояния и функции (`mode`, `toggleTheme`, `language`, `setLanguage`) и объекты переводов (`toolbarTranslations`, `footerTranslations`) теперь передаются из `App` в `MainLayout` как пропсы.
+
+Эти изменения делают структуру вашего приложения более модульной и решают проблему с доступом к свойствам темы при использовании `useMediaQuery`. Теперь ваш адаптивный тулбар должен работать корректно на всех размерах экра
