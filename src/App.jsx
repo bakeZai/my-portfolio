@@ -11,15 +11,15 @@ import {
   Select,
   MenuItem,
   Link,
-  Drawer, // Импортируем Drawer
-  List, // Импортируем List
-  ListItemButton, // Импортируем ListItemButton
-  ListItemText, // Импортируем ListItemText
-  useMediaQuery, // Импортируем useMediaQuery
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemText,
+  useMediaQuery,
 } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import MenuIcon from '@mui/icons-material/Menu'; // Импортируем иконку меню
+import MenuIcon from '@mui/icons-material/Menu';
 import { Routes, Route, Link as RouterLink, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
@@ -30,18 +30,14 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 
 function App() {
   const [mode, setMode] = useState('light');
+  const theme = useMemo(() => getTheme(mode), [mode]); // ✅ theme создаётся до useMediaQuery
+  const isMobile = useMediaQuery(theme.breakpoints.down('md')); // ✅ используем theme здесь
+
   const location = useLocation();
   const [indicatorColor, setIndicatorColor] = useState('#ffffffff');
   const [language, setLanguage] = useState('en');
-  // Состояние для открытия/закрытия мобильного меню
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Определяем, является ли экран маленьким (меньше 'md' - 900px по умолчанию в MUI)
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'));
-
-  const theme = useMemo(() => getTheme(mode), [mode]);
-
-  // Обновляем цвет индикатора при изменении темы
   useEffect(() => {
     setIndicatorColor(theme.palette.text.primary);
   }, [theme]);
@@ -57,16 +53,13 @@ function App() {
   const isHomeActive = location.pathname === '/';
   const isProjectsActive = location.pathname === '/projects';
 
-  // Переводы для тулбара
   const toolbarTranslations = {
     en: { title: 'My Portfolio', home: 'Home', projects: 'Projects' },
     ru: { title: 'Моё Портфолио', home: 'Главная', projects: 'Проекты' },
     tr: { title: 'Portföyüm', home: 'Ana Sayfa', projects: 'Projeler' },
   };
-
   const tToolbar = toolbarTranslations[language];
 
-  // Переводы для футера
   const footerTranslations = {
     en: {
       name: 'Ibrahim Zanitdinov',
@@ -87,10 +80,8 @@ function App() {
       email: 'bakeboy99@gmail.com',
     },
   };
-
   const tFooter = footerTranslations[language];
 
-  // Содержимое боковой панели для мобильных устройств
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
@@ -103,26 +94,6 @@ function App() {
         <ListItemButton component={RouterLink} to="/projects" selected={isProjectsActive}>
           <ListItemText primary={tToolbar.projects} />
         </ListItemButton>
-        {/* Добавляем выбор языка и переключатель темы в Drawer */}
-        <ListItemButton>
-          <Select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            sx={{ color: 'inherit', '& .MuiSelect-icon': { color: 'inherit' }, width: '100%' }}
-            variant="standard"
-            disableUnderline
-          >
-            <MenuItem value="en">EN</MenuItem>
-            <MenuItem value="ru">RU</MenuItem>
-            <MenuItem value="tr">TR</MenuItem>
-          </Select>
-        </ListItemButton>
-        <ListItemButton onClick={toggleTheme}>
-          <IconButton color="inherit">
-            {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
-          <ListItemText primary={mode === 'dark' ? 'Light Mode' : 'Dark Mode'} />
-        </ListItemButton>
       </List>
     </Box>
   );
@@ -131,116 +102,51 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="static">
-        <Toolbar>
-          {/* Кнопка-гамбургер для мобильных устройств */}
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {isMobile && (
             <IconButton
               color="inherit"
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ mr: 2 }}
+              sx={{ mr: 1 }}
             >
               <MenuIcon />
             </IconButton>
           )}
 
-          {/* Заголовок портфолио */}
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }} // Скрываем на xs, показываем на sm и выше
-          >
-            {tToolbar.title}
-          </Typography>
-
-          {/* Навигационные кнопки для больших экранов */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center', flexGrow: 1 }}>
-            <Button
-              color="inherit"
-              component={RouterLink}
-              to="/"
-              sx={{
-                mr: 2,
-                textTransform: 'none',
-                fontSize: '1.2rem',
-                position: 'relative',
-                '&::after': {
-                  content: isHomeActive ? '""' : 'none',
-                  position: 'absolute',
-                  bottom: 4,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '60%',
-                  height: '2px',
-                  backgroundColor: indicatorColor,
-                  transition: 'all 0.3s ease',
-                },
-              }}
-            >
-              {tToolbar.home}
-            </Button>
-            <Button
-              color="inherit"
-              component={RouterLink}
-              to="/projects"
-              sx={{
-                mr: 2,
-                textTransform: 'none',
-                fontSize: '1.2rem',
-                position: 'relative',
-                '&::after': {
-                  content: isProjectsActive ? '""' : 'none',
-                  position: 'absolute',
-                  bottom: 4,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '60%',
-                  height: '2px',
-                  backgroundColor: indicatorColor,
-                  transition: 'all 0.3s ease',
-                },
-              }}
-            >
-              {tToolbar.projects}
-            </Button>
-          </Box>
-
-          {/* Выбор языка и переключатель темы для больших экранов */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
-            <Select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              sx={{ color: 'inherit', '& .MuiSelect-icon': { color: 'white' }, mr: 2 }}
-              variant="standard"
-            >
-              <MenuItem value="en">EN</MenuItem>
-              <MenuItem value="ru">RU</MenuItem>
-              <MenuItem value="tr">TR</MenuItem>
-            </Select>
-            <IconButton onClick={toggleTheme} color="inherit">
-              {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-            </IconButton>
-          </Box>
-
-          {/* Заголовок для мобильных устройств (когда нет кнопки-гамбургера) */}
-          {isMobile && (
+          {isMobile ? (
             <Typography
               variant="h6"
               component="div"
-              sx={{ flexGrow: 1, textAlign: 'center', display: { xs: 'block', sm: 'none' } }}
+              sx={{
+                flexGrow: 1,
+                textAlign: 'center',
+                fontSize: '1.1rem',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
             >
+              {tToolbar.title}
+            </Typography>
+          ) : (
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               {tToolbar.title}
             </Typography>
           )}
 
-          {/* Выбор языка и переключатель темы для мобильных устройств (если не в Drawer) */}
-          {isMobile && (
+          {isMobile ? (
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
               <Select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                sx={{ color: 'inherit', '& .MuiSelect-icon': { color: 'white' }, mr: 1 }}
+                sx={{
+                  color: 'inherit',
+                  '& .MuiSelect-icon': { color: 'white' },
+                  mx: 1,
+                  fontSize: '0.9rem',
+                }}
                 variant="standard"
               >
                 <MenuItem value="en">EN</MenuItem>
@@ -251,21 +157,74 @@ function App() {
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
             </Box>
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', flexGrow: 1, mr: 2 }}>
+                <Button
+                  color="inherit"
+                  component={RouterLink}
+                  to="/"
+                  sx={{
+                    mr: 2,
+                    textTransform: 'none',
+                    fontSize: '1.2rem',
+                    position: 'relative',
+                    '&::after': {
+                      content: isHomeActive ? '""' : 'none',
+                      position: 'absolute',
+                      bottom: 4,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '60%',
+                      height: '2px',
+                      backgroundColor: indicatorColor,
+                      transition: 'all 0.3s ease',
+                    },
+                  }}
+                >
+                  {tToolbar.home}
+                </Button>
+                <Button
+                  color="inherit"
+                  component={RouterLink}
+                  to="/projects"
+                  sx={{
+                    mr: 2,
+                    textTransform: 'none',
+                    fontSize: '1.2rem',
+                    position: 'relative',
+                    '&::after': {
+                      content: isProjectsActive ? '""' : 'none',
+                      position: 'absolute',
+                      bottom: 4,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '60%',
+                      height: '2px',
+                      backgroundColor: indicatorColor,
+                      transition: 'all 0.3s ease',
+                    },
+                  }}
+                >
+                  {tToolbar.projects}
+                </Button>
+            </Box>
+              <IconButton onClick={toggleTheme} color="inherit">
+                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              </IconButton>
+            </Box>
           )}
         </Toolbar>
       </AppBar>
 
-      {/* Drawer для мобильной навигации */}
       <nav>
         <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Для лучшей производительности на мобильных
-          }}
+          ModalProps={{ keepMounted: true }}
           sx={{
-            display: { xs: 'block', md: 'none' }, // Показываем только на маленьких экранах
+            display: { xs: 'block', md: 'none' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
           }}
         >
@@ -287,7 +246,7 @@ function App() {
           <Route path="/projects" element={<Projects language={language} mode={mode} />} />
         </Routes>
       </Box>
-      {/* Глобальный футер */}
+
       <Box
         component="footer"
         sx={{
@@ -307,10 +266,10 @@ function App() {
           {tFooter.address} | {tFooter.phone} | {tFooter.email}
         </Typography>
         <Box sx={{ mb: 2 }}>
-          <Link href="https://github.com/tvojnik" target="_blank" sx={{ mx: 1, color: 'inherit' }}>
+          <Link href="https://github.com/bakeZai" target="_blank" sx={{ mx: 1, color: 'inherit' }}>
             <GitHubIcon />
           </Link>
-          <Link href="https://linkedin.com/in/tvojnik" target="_blank" sx={{ mx: 1, color: 'inherit' }}>
+          <Link href="https://www.linkedin.com/in/ibrabake9" target="_blank" sx={{ mx: 1, color: 'inherit' }}>
             <LinkedInIcon />
           </Link>
           <Link href="https://instagram.com/tvojnik" target="_blank" sx={{ mx: 1, color: 'inherit' }}>
