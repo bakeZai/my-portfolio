@@ -266,7 +266,7 @@ function App() {
           {tFooter.address} | {tFooter.phone} | {tFooter.email}
         </Typography>
         <Box sx={{ mb: 2 }}>
-          <Link href="https://github.com/bakeZai" target="_blank" sx={{ mx: 1, color: 'inherit' }}>
+          <Link href="https://github.com/tvojnik" target="_blank" sx={{ mx: 1, color: 'inherit' }}>
             <GitHubIcon />
           </Link>
           <Link href="https://www.linkedin.com/in/ibrabake9" target="_blank" sx={{ mx: 1, color: 'inherit' }}>
