@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -27,20 +27,21 @@ import { getTheme } from './theme';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import InstagramIcon from '@mui/icons-material/Instagram';
+import logoWhite from './assets/logoWhite.png';
 
 function App() {
   const [mode, setMode] = useState('light');
-  const theme = useMemo(() => getTheme(mode), [mode]); // ✅ theme создаётся до useMediaQuery
-  const isMobile = useMediaQuery(theme.breakpoints.down('md')); // ✅ используем theme здесь
+  const theme = useMemo(() => getTheme(mode), [mode]);
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const location = useLocation();
-  const [indicatorColor, setIndicatorColor] = useState('#ffffffff');
+
   const [language, setLanguage] = useState('en');
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  useEffect(() => {
-    setIndicatorColor(theme.palette.text.primary);
-  }, [theme]);
+
+
+
 
   const toggleTheme = () => {
     setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
@@ -101,121 +102,131 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar position="static">
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 1 }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-
-          {isMobile ? (
-            <Typography
-              variant="h6"
-              component="div"
-              sx={{
-                flexGrow: 1,
-                textAlign: 'center',
-                fontSize: '1.1rem',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {tToolbar.title}
-            </Typography>
-          ) : (
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              {tToolbar.title}
-            </Typography>
-          )}
-
-          {isMobile ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
-              <Select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                sx={{
-                  color: 'inherit',
-                  '& .MuiSelect-icon': { color: 'white' },
-                  mx: 1,
-                  fontSize: '0.9rem',
-                }}
-                variant="standard"
-              >
-                <MenuItem value="en">EN</MenuItem>
-                <MenuItem value="ru">RU</MenuItem>
-                <MenuItem value="tr">TR</MenuItem>
-              </Select>
-              <IconButton onClick={toggleTheme} color="inherit">
-                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-              </IconButton>
-            </Box>
-          ) : (
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'center', flexGrow: 1, mr: 2 }}>
-                <Button
-                  color="inherit"
-                  component={RouterLink}
-                  to="/"
-                  sx={{
-                    mr: 2,
-                    textTransform: 'none',
-                    fontSize: '1.2rem',
-                    position: 'relative',
-                    '&::after': {
-                      content: isHomeActive ? '""' : 'none',
-                      position: 'absolute',
-                      bottom: 4,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: '60%',
-                      height: '2px',
-                      backgroundColor: indicatorColor,
-                      transition: 'all 0.3s ease',
-                    },
-                  }}
-                >
-                  {tToolbar.home}
-                </Button>
-                <Button
-                  color="inherit"
-                  component={RouterLink}
-                  to="/projects"
-                  sx={{
-                    mr: 2,
-                    textTransform: 'none',
-                    fontSize: '1.2rem',
-                    position: 'relative',
-                    '&::after': {
-                      content: isProjectsActive ? '""' : 'none',
-                      position: 'absolute',
-                      bottom: 4,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: '60%',
-                      height: '2px',
-                      backgroundColor: indicatorColor,
-                      transition: 'all 0.3s ease',
-                    },
-                  }}
-                >
-                  {tToolbar.projects}
-                </Button>
-            </Box>
-              <IconButton onClick={toggleTheme} color="inherit">
-                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-              </IconButton>
-            </Box>
-          )}
-        </Toolbar>
-      </AppBar>
+     <AppBar position="static">
+  <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    {isMobile ? (
+      <>
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={handleDrawerToggle}
+          sx={{ mr: 1 }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{
+              mr: 1,
+              fontSize: '1.1rem',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {tToolbar.title}
+          </Typography>
+          <img
+            src={logoWhite}
+            alt="Logo"
+            style={{ height: '40px', width: 'auto', marginTop: '4px' }}
+          />
+        </Box>
+        <Box sx={{ flexGrow: 1 }} />
+      </>
+    ) : (
+      // ЛОГИКА ДЛЯ ДЕСКТОПНОЙ ВЕРСИИ
+      <Box sx={{ display: 'flex', flexGrow: 1, alignItems: 'center', width: '100%' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="h6" component="div" sx={{ mr: 2 }}>
+            {tToolbar.title}
+          </Typography>
+          <img
+            src={logoWhite}
+            alt="Logo"
+            style={{ height: '60px', width: 'auto', marginTop: '5px' }}
+          />
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', flexGrow: 1 }}>
+          <Button
+            color="inherit"
+            component={RouterLink}
+            to="/"
+            sx={{
+              mr: 2,
+              textTransform: 'none',
+              fontSize: '1.2rem',
+              position: 'relative',
+              '&::after': {
+                content: isHomeActive ? '""' : 'none',
+                position: 'absolute',
+                bottom: 4,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '60%',
+                height: '2px',
+                backgroundColor: theme.palette.primary.main,
+                transition: 'all 0.3s ease',
+              },
+            }}
+          >
+            {tToolbar.home}
+          </Button>
+          <Button
+            color="inherit"
+            component={RouterLink}
+            to="/projects"
+            sx={{
+              mr: 2,
+              textTransform: 'none',
+              fontSize: '1.2rem',
+              position: 'relative',
+              '&::after': {
+                content: isProjectsActive ? '""' : 'none',
+                position: 'absolute',
+                bottom: 4,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '60%',
+                height: '2px',
+                backgroundColor: theme.palette.primary.main,
+                transition: 'all 0.3s ease',
+              },
+            }}
+          >
+            {tToolbar.projects}
+          </Button>
+        </Box>
+      </Box>
+     )}
+         <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+       <Select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            sx={{
+             color: 'inherit',
+          '& .MuiSelect-icon': { color: 'white' },
+             mx: 1,
+            fontSize: isMobile ? '0.9rem' : '1.2rem',
+            '&:before, &:after': {
+             borderBottomColor: theme.palette.primary.main,
+            },
+            }}
+            variant="standard"
+         >
+            <MenuItem value="en">EN</MenuItem>
+            <MenuItem value="ru">RU</MenuItem>
+            <MenuItem value="tr">TR</MenuItem>
+        </Select>
+        <IconButton onClick={toggleTheme} color="inherit">
+         {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+        </IconButton>
+        </Box>
+    </Toolbar>
+    </AppBar>
 
       <nav>
         <Drawer
@@ -266,7 +277,7 @@ function App() {
           {tFooter.address} | {tFooter.phone} | {tFooter.email}
         </Typography>
         <Box sx={{ mb: 2 }}>
-          <Link href="https://github.com/tvojnik" target="_blank" sx={{ mx: 1, color: 'inherit' }}>
+          <Link href="https://github.com/bakeZai" target="_blank" sx={{ mx: 1, color: 'inherit' }}>
             <GitHubIcon />
           </Link>
           <Link href="https://www.linkedin.com/in/ibrabake9" target="_blank" sx={{ mx: 1, color: 'inherit' }}>

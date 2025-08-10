@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Typography, Grid } from '@mui/material';
 
+
 const TicTacToe = ({ theme, onClose, language }) => {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
@@ -50,7 +51,7 @@ const TicTacToe = ({ theme, onClose, language }) => {
 
   // Рендеринг клетки
   const renderSquare = (index) => (
-    <Grid item xs={4}>
+    <Grid item xs={4} key={index}>
       <Button
         variant="outlined"
         sx={{

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   Container,
   Typography,
@@ -8,12 +7,10 @@ import {
   Avatar,
   Box,
 } from '@mui/material';
-import { motion } from 'framer-motion';
-import { getTheme } from '../theme';
-import profilePic from '../assets/maxresdefault.jpg';
+import { motion, scale } from 'framer-motion';
+import profilePic from '../assets/Profile2.jpg';
 
 const Home = ({ language, mode }) => {
-  const theme = useMemo(() => getTheme(mode), [mode]);
 
   // Переводы
   const translations = {
@@ -139,7 +136,7 @@ const Home = ({ language, mode }) => {
       <Box sx={{ textAlign: 'center', mb: 4 }}>
         <Avatar
           src={profilePic}
-          sx={{ width: 150, height: 150, margin: '0 auto' }}
+          sx={{ width: 150, height: 150, margin: '0 auto', objectPosition: 'center 50%' }}
         />
         <Typography variant="h4" gutterBottom>
           {t.name}
@@ -176,7 +173,7 @@ const Home = ({ language, mode }) => {
             <Typography variant="h5" gutterBottom>
               {t.skills}
             </Typography>
-            <Grid container spacing={3}>
+            <Grid container spacing={2}>
               {t.skillsList.map((skill, index) => (
                 <Grid
                   key={index}

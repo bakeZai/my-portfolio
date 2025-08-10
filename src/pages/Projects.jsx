@@ -1,14 +1,122 @@
 import { useState, useMemo } from 'react';
-import { Container, Typography, Modal, Box, Button } from '@mui/material';
+import { Container, Typography, Modal, Box, Button, IconButton } from '@mui/material';
+import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos';
 import { motion } from 'framer-motion';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
+
 import { getTheme } from '../theme';
 import ProjectsGrid from '../components/ProjectsGrid';
 import Note from '../components/Note';
 import TicTacToe from '../components/TicTacToe';
 import SnakeGame from '../components/SnakeGame';
 
+// ---  Кастомные компоненты стрелок для карусели
+// ---
+
+// Компонент стрелки "Назад"
+const PrevArrow = (props) => {
+  const { onClick } = props;
+  return (
+    <IconButton
+      onClick={onClick}
+      sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '10px',
+        transform: 'translateY(-50%)',
+        zIndex: 1,
+        color: 'white',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        '&:hover': {
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        },
+      }}
+    >
+      <ArrowBackIos fontSize="large" />
+    </IconButton>
+  );
+};
+
+// Компонент стрелки "Вперёд"
+const NextArrow = (props) => {
+  const { onClick } = props;
+  return (
+    <IconButton
+      onClick={onClick}
+      sx={{
+        position: 'absolute',
+        top: '50%',
+        right: '10px',
+        transform: 'translateY(-50%)',
+        zIndex: 1,
+        color: 'white',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        '&:hover': {
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        },
+      }}
+    >
+      <ArrowForwardIos fontSize="large" />
+    </IconButton>
+  );
+};
+
+// ... ваш код импортов
+
+const PhotoCarousel = ({ photos }) => {
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: true,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    cssEase: "linear",
+    // Кастомные стрелки (если вы их добавили, оставьте их)
+    // nextArrow: <NextArrow />, 
+    // prevArrow: <PrevArrow />,
+    swipeToSlide: true, 
+    keyboard: true, 
+  };
+
+  return (
+    <Slider {...settings}>
+      {photos.map((photo, index) => (
+        <Box 
+          key={index} 
+          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}
+        >
+          <img
+            src={photo}
+            alt={`Project photo ${index + 1}`}
+            style={{ 
+              width: '100%', 
+              borderRadius: '8px', 
+              maxHeight: '300px', // Уменьшаем максимальную высоту
+              objectFit: 'contain', 
+              margin: 'auto'
+            }}
+          />
+        </Box>
+      ))}
+    </Slider>
+  );
+};
+// --- Основной компонент проектов
+// ---
+
 const Projects = ({ language, mode, searchQuery }) => {
   const theme = useMemo(() => getTheme(mode), [mode]);
+  
+  const modalVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
+  };
 
   const translations = {
     en: { title: 'My Projects', noProjects: 'No projects yet. Check back later!', close: 'Close' },
@@ -110,7 +218,6 @@ const Projects = ({ language, mode, searchQuery }) => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
 
-  // Фильтрация проектов по поисковому запросу
   const filteredProjects = useMemo(() => {
     if (!searchQuery) return projects;
     return projects.filter((project) => {
@@ -153,7 +260,7 @@ const Projects = ({ language, mode, searchQuery }) => {
             sx={{
               overflowX: 'auto',
               whiteSpace: 'nowrap',
-              '-webkit-overflow-scrolling': 'touch',
+              WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'thin',
               '&::-webkit-scrollbar': {
                 height: '8px',
@@ -189,11 +296,12 @@ const Projects = ({ language, mode, searchQuery }) => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: { xs: '90%', sm: 600, md: 800 },
-            maxWidth: 800,
+            width: { xs: '95%', sm: 600, md: 800 },
+            maxWidth: 1200,
             minWidth: 320,
             bgcolor: theme.palette.background.paper,
-            border: '2px solid',
+            borderRadius: 2,
+            border: '1px solid',
             borderColor: theme.palette.divider,
             boxShadow: 24,
             p: { xs: 2, sm: 4 },
@@ -202,98 +310,95 @@ const Projects = ({ language, mode, searchQuery }) => {
             overflowY: 'auto',
           }}
         >
-          {selectedProject && (
-            selectedProject.isGame ? (
-              <TicTacToe
-                theme={theme}
-                onClose={handleCloseModal}
-                language={language}
-              />
-            ) : selectedProject.isSnake ? (
-              <SnakeGame
-                theme={theme}
-                onClose={handleCloseModal}
-                language={language}
-              />
-            ) : selectedProject.isNote ? (
-              <Note
-                project={selectedProject}
-                language={language}
-                theme={theme}
-                onClose={handleCloseModal}
-              />
-            ) : (
-              <>
-                <Typography id="project-modal-title" variant="h6" component="h2">
-                  {selectedProject.title[language]}
-                </Typography>
-                <Typography sx={{ mt: 2 }}>
-                  <strong>Type:</strong> {selectedProject.type[language]}
-                </Typography>
-                <Typography sx={{ mt: 1, lineHeight: 1.6, marginBottom: 1 }}>
-                  <strong>Description:</strong> {selectedProject.description[language]}
-                </Typography>
-                {selectedProject.text && (
-                  <Typography sx={{ mt: 1, lineHeight: 1.6, marginBottom: 1 }}>
-                    <strong>Text:</strong> {selectedProject.text[language]}
+          <motion.div initial="hidden" animate="visible" variants={modalVariants}>
+            {selectedProject && (
+              selectedProject.isGame ? (
+                <TicTacToe
+                  theme={theme}
+                  onClose={handleCloseModal}
+                  language={language}
+                />
+              ) : selectedProject.isSnake ? (
+                <SnakeGame
+                  theme={theme}
+                  onClose={handleCloseModal}
+                  language={language}
+                />
+              ) : selectedProject.isNote ? (
+                <Note
+                  project={selectedProject}
+                  language={language}
+                  theme={theme}
+                  onClose={handleCloseModal}
+                />
+              ) : (
+                <>
+                  <Typography id="project-modal-title" variant="h6" component="h2">
+                    {selectedProject.title[language]}
                   </Typography>
-                )}
-                {selectedProject.image && (
-                  <motion.img
-                    whileHover={{ scale: 1.05 }}
-                    src={selectedProject.image}
-                    alt={selectedProject.title[language]}
-                    style={{ width: '100%', marginTop: '10px', borderRadius: '8px' }}
-                  />
-                )}
-                {selectedProject.photos && (
-                  <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
-                    {selectedProject.photos.map((photo, index) => (
-                      <img
-                        key={index}
-                        src={photo}
-                        alt={`${selectedProject.title[language]} ${index + 1}`}
-                        style={{ width: '45%', maxWidth: '300px', borderRadius: '8px' }}
-                      />
-                    ))}
-                  </Box>
-                )}
-                {selectedProject.link && (
                   <Typography sx={{ mt: 2 }}>
-                    <strong>Link:</strong>{' '}
-                    <a href={selectedProject.link} target="_blank" rel="noopener noreferrer">
-                      {selectedProject.link}
-                    </a>
+                    <strong>Type:</strong> {selectedProject.type[language]}
                   </Typography>
-                )}
-                {selectedProject.github && (
-                  <Typography sx={{ mt: 1 }}>
-                    <strong>GitHub:</strong>{' '}
-                    <a href={selectedProject.github} target="_blank" rel="noopener noreferrer">
-                      {selectedProject.github}
-                    </a>
-                  </Typography>
-                )}
-                <Button
-                  onClick={handleCloseModal}
-                  sx={{
-                    mt: 2,
-                    backgroundColor: theme.palette.primary.main,
-                    color: theme.palette.primary.contrastText,
-                    '&:hover': {
-                      backgroundColor: theme.palette.primary.dark,
-                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                    },
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                  }}
-                >
-                  {t.close}
-                </Button>
-              </>
-            )
-          )}
-        </Box>
+                  <Typography
+                    sx={{ mt: 1, lineHeight: 1.6, marginBottom: 1 }}
+                    component="div"
+                  >
+                    <strong>Description:</strong>{' '}
+                    <span
+                      dangerouslySetInnerHTML={{ __html: selectedProject.description[language] }}
+                    />
+                  </Typography>  
+                  {selectedProject.text && (
+                    <Typography sx={{ mt: 1, lineHeight: 1.6, marginBottom: 1 }}
+                      component="div"
+                      >
+                      <strong>Text:</strong>{' '}
+                      <span dangerouslySetInnerHTML={{ __html: selectedProject.text[language] }} />
+                    </Typography>
+                  )}
+                  {selectedProject.photos && selectedProject.photos.length > 0 && (
+                      <Box sx={{ mt: 2 }}>
+                          <PhotoCarousel photos={selectedProject.photos} />
+                      </Box>
+                  )}
+
+                  {selectedProject.link && (
+                    <Typography sx={{ mt: 2 }}>
+                      <strong>Link:</strong>{' '}
+                      <a href={selectedProject.link} target="_blank" rel="noopener noreferrer">
+                        {selectedProject.link}
+                      </a>
+                    </Typography>
+                  )}
+                  {selectedProject.github && (
+                    <Typography sx={{ mt: 1 }}>
+                      <strong>GitHub:</strong>{' '}
+                      <a href={selectedProject.github} target="_blank" rel="noopener noreferrer">
+                        {selectedProject.github}
+                      </a>
+                    </Typography>
+                  )}
+                  <Button
+                    onClick={handleCloseModal}
+                    sx={{
+                      mt: 3,
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      '&:hover': {
+                        backgroundColor: theme.palette.primary.dark,
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                      },
+                      padding: '8px 20px',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    {t.close}
+                  </Button>
+                </>
+              )
+            )}
+          </motion.div>
+        </Box>  
       </Modal>
     </Container>
   );
