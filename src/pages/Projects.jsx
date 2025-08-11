@@ -6,7 +6,10 @@ import { motion } from 'framer-motion';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
-
+import sand from '../assets/sand.jpg';
+import katana from '../assets/katana.png';
+import sus from '../assets/sus.png';
+import katana1 from '../assets/katana1.png';
 import { getTheme } from '../theme';
 import ProjectsGrid from '../components/ProjectsGrid';
 import Note from '../components/Note';
@@ -146,21 +149,23 @@ const Projects = ({ language, mode, searchQuery }) => {
       title: { en: '3D Model Design', ru: 'Дизайн 3D модели', tr: '3D Model Tasarımı' },
       type: { en: '3D Art', ru: '3D Искусство', tr: '3D Sanat' },
       description: {
-        en: 'A detailed 3D model of a futuristic spaceship.<br />Crafted in Blender with high-poly techniques for realistic rendering.',
-        ru: 'Детализированная 3D модель футуристического космического корабля.<br />Созданная в Blender с использованием высокополигональных техник для реалистичного рендеринга.',
-        tr: 'Futuristik bir uzay gemisi 3D modeli.<br />Blender ile yüksek poligon teknikleri kullanılarak gerçekçi bir render için tasarlandı.',
+        en: 'Detailed 3D model of different scenes and figures.<br />Crafted in Blender with high-poly techniques for realistic rendering.',
+        ru: 'Детализированная 3D модель разных сцен и фигурок.<br />Созданная в Blender с использованием высокополигональных техник для реалистичного рендеринга.',
+        tr: 'Farklı sahnelerin ve figürlerin detaylı 3B modeli.<br />Blender ile yüksek poligon teknikleri kullanılarak gerçekçi bir render için tasarlandı.',
       },
       text: {
         en: 'This project showcases a sleek spaceship design.<br />It includes intricate details like thrusters and cockpit windows,<br />making it perfect for sci-fi game assets.',
         ru: 'Этот проект демонстрирует элегантный дизайн космического корабля.<br />Включает интригующие детали, такие как двигатели и окна кабины,<br />что делает его идеальным для активов научно-фантастических игр.',
         tr: 'Bu proje, şık bir uzay gemisi tasarımını sergiliyor.<br />İticiler ve kokpit pencereleri gibi ayrıntılı detaylar içerir,<br />bu da onu bilim kurgu oyun varlıkları için ideal hale getiriyor.',
       },
-      image: 'https://images.unsplash.com/photo-1611095564985-8973c371d9f9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=180&q=80',
+      image: sand, 
       github: 'https://github.com/tvojnik/3dmodel',
       link: 'https://example.com/3dmodel',
       photos: [
-        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200&q=80',
-        'https://images.unsplash.com/photo-1611095564985-8973c371d9f9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200&q=80',
+        katana, 
+        katana1,
+        sand,
+        sus,
       ],
     },
     {
